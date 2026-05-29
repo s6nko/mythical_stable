@@ -71,15 +71,19 @@ class RecallCommand(Command):
             self._service.dispatch(self._name)
 
 
-class CommandHistory():
+class CommandHistory:
     def __init__(self):
         self._command_stack : list[Command]= []
         self._top = -1
 
     def execute(self, cmd:Command):
         cmd.execute()
-        self._command_stack.append(cmd)
         self._top += 1
+        if self._top >= len(self._command_stack):
+            self._command_stack.append(cmd)
+        else:
+            self._command_stack[self._top] = cmd
+        self._command_stack = self._command_stack[0:self._top+1] # Remove elements invalidated by the new cmd
 
     def undo_last(self):
         if not self._command_stack or self._top < 0:
